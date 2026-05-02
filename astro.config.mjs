@@ -42,4 +42,11 @@ export default defineConfig({
       ],
     }),
   ],
+  vite: {
+    preview: {
+      // Allow the production hostname behind the Cloudflare tunnel.
+      // ".ijglabs.ai" is a wildcard for any subdomain on that root.
+      allowedHosts: [".ijglabs.ai", "localhost", "127.0.0.1"],
+    },
+  },
 });
