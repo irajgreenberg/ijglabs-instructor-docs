@@ -74,13 +74,17 @@ jobs:
       - name: Test SSH connection
         run: ssh deploy-target "hostname && node -v && pm2 -v"
 
-      - name: Sync built app to server
+      - name: Sync source to server
         run: |
           ssh deploy-target "mkdir -p ${{ env.DEPLOY_DIR }}"
           rsync -az --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
-            ./dist ./package.json ./package-lock.json ./node_modules \
-            deploy-target:${{ env.DEPLOY_DIR }}/
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            --exclude='.astro' \
+            --exclude='.env*' \
+            ./ deploy-target:${{ env.DEPLOY_DIR }}/
 
       - name: Install dependencies and build on server
         run: ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && npm ci && npm run build"
