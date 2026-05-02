@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+const pageTitle = `${title} · IJG Studio Instructor Guide`;
+---
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description ?? 'How to teach with IJG Studio: create a course, assign lessons, import a cohort, send invites, and publish.'} />
+    <meta name="theme-color" content="#0a0a0a" />
+    <title>{pageTitle}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      // Honor prior theme choice; default to dark.
+      try {
+        const t = localStorage.getItem('ijg-doc-theme');
+        if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <SiteHeader />
+    <main id="main"><slot /></main>
+    <SiteFooter />
+    <script is:inline>
+      // Theme toggle (light/dark only — Swiss palette is intentional in both).
+      const btn = document.querySelector('.theme-toggle');
+      btn?.addEventListener('click', () => {
+        const el = document.documentElement;
+        const next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        el.setAttribute('data-theme', next);
+        try { localStorage.setItem('ijg-doc-theme', next); } catch {}
+        btn.textContent = next === 'dark' ? 'light' : 'dark';
+      });
+      // Sync initial label.
+      if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    </script>
+  </body>
+</html>

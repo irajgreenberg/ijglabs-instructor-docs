@@ -1,0 +1,107 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Add students" description="Two paths: add a single email, or bulk-import a roster CSV. Auto-detection of the email column. Worked examples for SMU and Canvas exports.">
+  <Hero
+    number="05"
+    kicker="Cohorts"
+    title="Add students."
+    meta={[
+      { label: 'Single', value: '+ Add student → email' },
+      { label: 'Bulk', value: 'Import CSV (registrar export, 1 MB max)' },
+      { label: 'Auto-detect', value: 'Email column by header name or value scan' },
+    ]}
+  >
+    Two flows. Pick one, populate the cohort, move on. CSV is the right answer for any course with more than five students.
+  </Hero>
+
+  <Section number="01" kicker="Single email" title="Add one student at a time.">
+    <div class="copy">
+      <p>Click <strong>+ Add student</strong> in the cohort panel header. A modal opens with one email field.</p>
+      <ul>
+        <li>If the email belongs to a Studio user, the studio inserts a <code>cohort_memberships</code> row immediately and the student appears in the enrolled list.</li>
+        <li>If the email doesn’t belong to a Studio user, the studio inserts an <code>allowed_emails</code> row with this cohort’s ID pre-assigned. The student appears in the pending list. Once they sign in for the first time (any time, no deadline), they automatically promote to enrolled.</li>
+      </ul>
+      <p>Both paths are idempotent — adding an email that’s already in the cohort is a no-op, not an error.</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="CSV import" title="Bulk-import a roster.">
+    <div class="copy">
+      <p>Click <strong>Import CSV</strong> in the cohort panel header. A modal opens with a drop zone and a paste-text fallback.</p>
+
+      <h4>Step 1 — Upload</h4>
+      <p>Click <strong>Choose CSV file</strong> and pick the file from your registrar export, or paste the CSV text into the textarea. The studio reads it on the spot — no upload to a server until you submit. Maximum size is <strong>1 MB</strong>, which is around 30,000 students; well above any realistic class.</p>
+
+      <h4>Step 2 — Auto-detection</h4>
+      <p>The parser looks for an email column in two passes. First pass: an exact (case-insensitive) header match for <code>email</code>, <code>email address</code>, or similar. Second pass: scans the first 25 data rows and picks whichever column has the most values matching the standard email regex (<code>name@domain.tld</code>). Whichever pass finds an email column wins.</p>
+      <p>Optional: a name column. The parser recognizes <code>name</code>, <code>full name</code>, <code>student name</code>, or PeopleSoft-style <code>NAME</code>. Used for display only.</p>
+      <p>You don’t configure any of this. The parser just runs.</p>
+
+      <h4>Step 3 — Preview</h4>
+      <p>Once parsed, the modal shows a preview block:</p>
+      <ul>
+        <li><strong>Email column</strong> — the column name the parser picked.</li>
+        <li><strong>Name column</strong> — if found.</li>
+        <li><strong>Rows in file</strong> — total data rows (header excluded).</li>
+        <li><strong>Valid emails</strong> — how many will actually be imported.</li>
+        <li><strong>Skipped (no email)</strong> — rows missing or malformed in the email column. Yellow.</li>
+        <li><strong>Duplicate emails</strong> — same address listed multiple times in the file. Counted once. Yellow.</li>
+      </ul>
+      <p>If <strong>Valid emails</strong> is 0, your file is wrong. Most likely the email column is missing or the values aren’t real email addresses. Re-export from your registrar with email included.</p>
+
+      <h4>Step 4 — Submit</h4>
+      <p>Click <strong>Import</strong>. The studio runs each email through the same single-email logic, in a transaction. When done, a green result panel shows:</p>
+      <ul>
+        <li><strong>Added to cohort</strong> — existing Studio users that got new memberships.</li>
+        <li><strong>Pre-assigned (will join on signup)</strong> — emails added to the whitelist with the cohort pre-set.</li>
+        <li><strong>Already in cohort</strong> — addresses that already had memberships. No-ops.</li>
+        <li><strong>Already pending</strong> — addresses already on the whitelist with this same cohort. No-ops.</li>
+        <li><strong>Errors</strong> — per-row failures, if any. Up to 5 listed verbatim, the rest summarized.</li>
+      </ul>
+      <p>The cohort panel behind the modal refreshes automatically. Click <strong>Done</strong> to close.</p>
+    </div>
+    <Callout label="Sample CSV that works">
+      <p>Any file with at least an email column. The parser ignores everything else. A minimal example:</p>
+      <pre><code>Email,Name
+alice@example.edu,Alice Doe
+bob@example.edu,Bob Smith</code></pre>
+      <p>A real registrar export with extra columns (<code>Student ID</code>, <code>Status</code>, <code>Grading Basis</code>, <code>Units Taken</code>, <code>Primary Academic Program</code>, <code>Academic Level</code>) works the same way — the parser just picks the email column and ignores the rest.</p>
+    </Callout>
+  </Section>
+
+  <Section number="03" kicker="Worked example" title="A 16-student SMU PeopleSoft roster.">
+    <div class="copy">
+      <p>SMU registrar export had columns <code>NAME</code>, <code>Student ID</code>, <code>Status</code>, <code>Email address</code>, <code>Grading Basis</code>, <code>Units Taken</code>, <code>Primary Academic Program</code>, <code>Academic Level</code>. 16 data rows.</p>
+      <ol>
+        <li>Imported the file as-is — no edits.</li>
+        <li>Parser detected <code>Email address</code> as the email column (header-name match) and <code>NAME</code> as the name column.</li>
+        <li>Preview said: 16 rows in file, 16 valid emails, 0 skipped, 0 duplicates.</li>
+        <li>Clicked <strong>Import</strong>. Result: 0 added (none had Studio accounts yet), 16 pre-assigned, 0 errors.</li>
+        <li>Closed modal. Cohort panel showed 16 pending rows with yellow chips. Sent invites to all in one click (next page).</li>
+      </ol>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Manual whitelist (admin)" title="Pre-authorize an email outside a cohort.">
+    <div class="copy">
+      <p>If you’re an admin and need to authorize an email <em>without</em> attaching it to a cohort — for example, to grant a colleague <code>teacher</code> access — go to <code>/admin</code>, click the <strong>Whitelist</strong> tab, and add the email there. You can optionally set the <code>initialCohortId</code> on the same row to pin them to a specific cohort. The same allowedEmails table is used; the admin UI just exposes additional fields (initial role, initial policy group) that aren’t available from the teacher cohort flow.</p>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Remove a student" title="Trash icon, idempotent.">
+    <div class="copy">
+      <p>Click the trash icon next to any roster row. Confirms first. The studio removes the cohort membership (for enrolled) <em>and</em> clears the cohort pre-assignment from the whitelist row (for pending). The student keeps their Studio account; only their relationship to this specific cohort is severed.</p>
+      <p>If they had work in the course already (lesson sessions, comments), that data is retained. The studio doesn’t cascade-delete student work when a cohort membership is removed.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="Send the invitations.">
+    <div class="copy">
+      <p>Pending students need to know they’ve been added — that’s the next page. <a href="/cohorts/send-invites">06 / Send invite emails</a>.</p>
+    </div>
+  </Section>
+</Layout>

@@ -1,0 +1,91 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Cohort overview" description="What a cohort is in IJG Studio: 1:1 with course, roster of enrolled and pending students, and how it connects to the rest of the platform.">
+  <Hero
+    number="04"
+    kicker="Cohorts"
+    title="What a cohort is."
+    meta={[
+      { label: 'Relationship', value: '1:1 with course (auto-created)' },
+      { label: 'Statuses', value: 'draft · active · archived' },
+      { label: 'Members', value: 'enrolled (signed in) + pending (whitelisted)' },
+    ]}
+  >
+    Read this once. The cohort model is small and consistent, and understanding it makes the rest of the cohort surfaces obvious.
+  </Hero>
+
+  <Section number="01" kicker="The model" title="One cohort per course.">
+    <div class="copy">
+      <p>Every course owns exactly one cohort. The cohort is created automatically the moment the course is created (the wizard does this in a single transaction; see <a href="/courses/create-with-wizard">02 / Create a course with the wizard</a>). A course never has zero cohorts; a cohort never belongs to two courses.</p>
+      <p>This is the most important rule in this whole guide because it shapes every other surface:</p>
+      <ul>
+        <li>To run two sections of the same course, you <strong>clone the course</strong> — each clone gets its own cohort.</li>
+        <li>To move a student between sections, you remove them from one cohort and add them to the other.</li>
+        <li>To archive a class, you archive the course; the cohort goes with it.</li>
+      </ul>
+    </div>
+    <Callout label="Pre-instructor-1.0 cohorts">
+      <p>Standalone cohorts (cohorts not attached to any course) used to exist in an earlier version of Studio, managed from the admin panel. They’re gone — the admin Cohorts tab was retired. If you see a legacy cohort with no course, contact your admin to either link it to a new course or delete it.</p>
+    </Callout>
+  </Section>
+
+  <Section number="02" kicker="Membership" title="Enrolled vs pending.">
+    <div class="copy">
+      <p>Two kinds of people live in a cohort:</p>
+
+      <h4>Enrolled</h4>
+      <p>A user with a real Studio account who has been added to the cohort. They appear in the roster with their name (if set) and email. Database-wise they have a row in the <code>cohort_memberships</code> table linking their <code>users.id</code> to the cohort.</p>
+
+      <h4>Pending</h4>
+      <p>An email that has been pre-authorized for the cohort but has not signed in yet. They appear in the roster with a yellow <code>Pending sign-up</code> chip and the note <em>“Will be added on first sign-in.”</em> Database-wise they have a row in the <code>allowed_emails</code> table with the cohort’s ID in the <code>initialCohortId</code> column.</p>
+      <p>Pending students are automatically promoted to enrolled the first time they sign in: Auth.js consumes the whitelist row, creates a real <code>users</code> entry, and the cohort-membership row is inserted in the same transaction. From the teacher’s point of view, the pending row simply changes from yellow to white.</p>
+
+      <h4>Why both</h4>
+      <p>Most students don’t have Studio accounts when you first add them — they’re just emails on a registrar export. The pending mechanism lets you set up the entire roster (and send invite emails — see <a href="/cohorts/send-invites">06 / Send invite emails</a>) before anyone has signed in. As students sign in, they automatically slot into the right cohort with the right role.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Roles" title="Students, teachers, TAs.">
+    <div class="copy">
+      <p>Each membership has a <code>roleInCohort</code> field. Two values: <code>student</code> (default) or <code>teacher</code>. Teachers in a cohort have read-access to other students’ progress reports and can post per-student comments. Use the <code>teacher</code> role for TAs, co-instructors, or grad assistants.</p>
+      <p>Note that <code>roleInCohort</code> is independent of the user’s platform-level role (the <code>role</code> column on <code>users</code>, set by an admin: <code>admin</code> / <code>dev</code> / <code>teacher</code> / <code>student</code> / <code>user</code>). A platform <code>student</code> can be a <code>teacher</code> in a particular cohort if you assign them that way; the cohort role wins inside the cohort context.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Status" title="Draft, active, archived.">
+    <div class="copy">
+      <p>Cohorts mirror their course’s lifecycle. The default status is <code>draft</code> on creation. Publishing the course doesn’t flip the cohort to <code>active</code> automatically — it’s a separate field, mostly informational. Use it as a small tag visible in the dashboard:</p>
+      <ul>
+        <li><code>draft</code> — pre-launch. You’re still building the roster and curriculum.</li>
+        <li><code>active</code> — class is in session. Students are working through lessons.</li>
+        <li><code>archived</code> — class has ended. New enrollments and edits should stop.</li>
+      </ul>
+      <p>Archived cohorts can’t be edited from the cohort panel. Active and draft both allow full editing.</p>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Where it lives" title="The cohort panel.">
+    <div class="copy">
+      <p>You manage everything cohort-related from one panel: the <strong>Cohort</strong> block on the course detail page at <code>/teacher/courses</code>. Click any course in the sidebar; the cohort block sits below the lessons block. It shows:</p>
+      <ul>
+        <li>A header row: count, breakdown (<em>X enrolled · Y pending sign-up</em>), and three buttons — <strong>Send invites (N)</strong>, <strong>Import CSV</strong>, <strong>+ Add student</strong>.</li>
+        <li>The roster as a vertical list. Enrolled members render with name + email + role chip; pending members render with a mail-icon avatar + yellow <code>Pending sign-up</code> chip + per-row <strong>Send</strong> and <strong>Trash</strong> icons.</li>
+      </ul>
+      <p>If a course doesn’t have a cohort yet (rare — only happens for very old courses created before the 1:1 model), the panel auto-creates one the first time you open it. You don’t need to ask an admin.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="Add students, send invites.">
+    <div class="copy">
+      <p>The two next pages cover the workflows you’ll use most:</p>
+      <ul>
+        <li><a href="/cohorts/add-students">05 / Add students</a> — single email or CSV bulk import.</li>
+        <li><a href="/cohorts/send-invites">06 / Send invite emails</a> — bulk magic-link invitations and the cooldown.</li>
+      </ul>
+    </div>
+  </Section>
+</Layout>

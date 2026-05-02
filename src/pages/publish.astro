@@ -1,0 +1,76 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import Callout from '../components/Callout.astro';
+---
+<Layout title="Publish & share" description="Take a course out of draft. Choose enrollment vs open mode, generate an invite code, optionally list in the Learning Commons.">
+  <Hero
+    number="10"
+    kicker="Launch"
+    title="Publish & share."
+    meta={[
+      { label: 'Surface', value: 'Publish button on course detail' },
+      { label: 'Modes', value: 'enrollment · open' },
+      { label: 'Optional', value: 'Learning Commons listing' },
+    ]}
+  >
+    Publishing flips a course from <code>draft</code> to <code>published</code>. Two publish modes, one optional Commons listing. Decide which you want and click once.
+  </Hero>
+
+  <Section number="01" kicker="Open the modal" title="Publish on the course header.">
+    <div class="copy">
+      <p>From <code>/teacher/courses</code>, select a course. The header card has a <strong>Publish</strong> button. Click it; a modal opens with two radio options and (conditionally) a checkbox.</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Mode A · Enrollment" title="Cohort-only access.">
+    <div class="copy">
+      <p>Default. Only people in the cohort can join the course. Whitelisted-but-pending students still join automatically on first sign-in (the cohort flow handles them); everyone else gets a permission-denied page if they try to access the course URL.</p>
+      <p>Use enrollment mode for institutional courses where you control the roster. It’s the right answer for almost every classroom context.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Mode B · Open" title="Anyone with the invite code.">
+    <div class="copy">
+      <p>The studio generates a 6-character invite code (mixed alphanumeric — example: <code>QF7XBV</code>). Share the code via whatever channel you want (Slack, email, posting it on a slide). Anyone with a Studio account who enters the code at <code>/teacher</code> joins the course.</p>
+      <p>Use open mode for workshops, public courses, or any context where you don’t want to maintain a roster manually. The code is rotatable — re-publish the course in open mode to get a new one if the old one leaks.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Optional · Commons" title="List in the Learning Commons.">
+    <div class="copy">
+      <p>When mode is <code>open</code>, a checkbox appears: <strong>List in Learning Commons</strong>. Tick it to add the course to <code>/commons</code> — a shared course catalog visible to every teacher in Studio. Other teachers can browse, preview, and clone (but not modify) your course.</p>
+      <p>Use Commons listing when you want to publish a course as a teaching resource for other instructors. Don’t list anything that contains material you’re still iterating on; once cloned, the clones diverge and your edits won’t propagate.</p>
+      <p>You can list and unlist freely — just re-publish with the checkbox toggled. Existing clones aren’t affected by un-listing.</p>
+    </div>
+    <Callout label="Commons is read-only-ish">
+      <p>Other teachers can view your published course in Commons and clone it into their own workspace. They can’t edit your original. Cloning copies lessons but creates a fresh empty cohort and resets status to <code>draft</code> on the clone.</p>
+    </Callout>
+  </Section>
+
+  <Section number="05" kicker="After publishing" title="What students see.">
+    <div class="copy">
+      <p>The course header pill flips from <code>draft</code> (yellow) to <code>published</code> (green). The cohort panel still works exactly as before — Send invites, Add student, Import CSV are all still active. Students who were pending now see the course in their dashboard the next time they sign in.</p>
+      <p>You can keep editing lessons after publishing. The studio doesn’t freeze a course on publish. Edits are visible to students who haven’t entered a session yet; in-flight sessions keep the old lesson context for that session’s lifetime.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Unpublishing" title="Archive instead.">
+    <div class="copy">
+      <p>There is no “unpublish” action. The two transitions out of <code>published</code> are:</p>
+      <ul>
+        <li><strong>Archive</strong> — sets <code>status = archived</code>. Use at the end of a term. Lessons and roster become read-only; new students can’t join.</li>
+        <li><strong>Delete</strong> — permanently removes everything. Don’t use unless you really mean it.</li>
+      </ul>
+      <p>If you published by accident and want to “unpublish,” the right move is Archive plus a follow-up Clone if you need the content for a future term.</p>
+    </div>
+  </Section>
+
+  <Section number="07" kicker="Done" title="What’s left.">
+    <div class="copy">
+      <p>You now have a published course with a roster ready to receive invitations. If you haven’t already, see <a href="/cohorts/send-invites">06 / Send invite emails</a> to bulk-send sign-in invitations to every pending student.</p>
+      <p>If anything misbehaves, see <a href="/troubleshooting">11 / Troubleshooting</a>.</p>
+    </div>
+  </Section>
+</Layout>

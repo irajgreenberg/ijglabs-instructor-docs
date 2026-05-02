@@ -1,0 +1,99 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Edit a course or its lessons" description="The course detail surface — header actions, lessons block, inline lesson editor, and the clone-for-new-section pattern.">
+  <Hero
+    number="03"
+    kicker="Courses"
+    title="Edit a course or its lessons."
+    meta={[
+      { label: 'Surface', value: '/teacher/courses (with course selected)' },
+      { label: 'Inline edits', value: 'Title, description, section, lesson fields' },
+      { label: 'Clone behavior', value: 'Copies lessons, fresh empty cohort, new section' },
+    ]}
+  >
+    The course detail page is the everyday surface — most days you’ll be on it tweaking a lesson or watching the cohort fill up. This page covers everything below the header: the lessons block, the lesson editor, and the clone pattern.
+  </Hero>
+
+  <Section number="01" kicker="Open a course" title="The course detail layout.">
+    <div class="copy">
+      <p>From <code>/teacher/courses</code>, click any course in the left sidebar. The right pane fills in. Top to bottom you’ll see:</p>
+      <ul>
+        <li><strong>Header card</strong> — title, status pill (<code>draft</code> / <code>published</code> / <code>archived</code>), section chip if set, plus four buttons: <strong>Author with AI</strong>, <strong>Publish</strong>, <strong>Clone</strong>, <strong>Archive</strong>, <strong>Delete</strong>.</li>
+        <li><strong>Lessons block</strong> — count + ordered list with per-lesson edit/delete icons + an <strong>+ Add lesson</strong> button.</li>
+        <li><strong>Cohort panel</strong> — the roster (covered in <a href="/cohorts/overview">04 / Cohort overview</a>).</li>
+        <li><strong>Active enrollments</strong> — appears once at least one student has started the course; read-only here, drills into per-student progress.</li>
+      </ul>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Header actions" title="What each button does.">
+    <div class="copy">
+      <h4>Author with AI</h4>
+      <p>Opens <code>/teacher/courses/[id]/author</code>, a chat-only workspace where the AI proposes lessons in a structured format you can apply with one click. Covered in <a href="/lessons/author-with-ai">09 / Author lessons with AI</a>. Useful when the wizard scaffold isn’t quite right or you want to add lessons after the fact.</p>
+
+      <h4>Publish</h4>
+      <p>Moves the course out of <code>draft</code>. Covered in <a href="/publish">10 / Publish &amp; share</a>.</p>
+
+      <h4>Clone</h4>
+      <p>Asks for a new title (defaults to <em>Copy of [original]</em>), then creates a new course with the same lessons + an empty cohort. The clone is in <code>draft</code> regardless of the original’s status. <strong>Use this for multiple sections of the same course</strong> — give each clone a distinct section number after creation.</p>
+
+      <h4>Archive</h4>
+      <p>Confirms, then sets <code>status = archived</code>. Archived courses can’t be edited (the lesson and cohort controls are disabled) and don’t accept new students. Use it at the end of a term to close a course without deleting historical data.</p>
+
+      <h4>Delete</h4>
+      <p>Confirms with the title spelled out, then permanently removes the course, lessons, cohort memberships, and any attached chat sessions. Cascades through the database — <strong>not reversible</strong>. Use Archive instead unless you’re sure.</p>
+    </div>
+    <Callout label="Edit the title or description">
+      <p>The course header isn’t inline-editable on the dashboard. To rename or change the description, you’ll find those fields next to the lesson editor — there’s a small course-level edit icon in the same panel. (If you don’t see it on your build, ping us — this UI surface is being expanded.)</p>
+    </Callout>
+  </Section>
+
+  <Section number="03" kicker="Lessons block" title="Add, reorder, edit, delete.">
+    <div class="copy">
+      <p>The Lessons block lists every lesson in the course in order. Each row shows the lesson number, title, framework chip (<code>P5JS</code>, <code>THREEJS</code>, or <code>GLSL</code>), media chips, and a one-line description. Hover for the pencil and trash icons.</p>
+
+      <h4>Add a lesson</h4>
+      <p>Click <strong>+ Add lesson</strong> in the block header. A modal opens with the same fields the lesson editor uses (covered in <a href="/lessons/edit-lesson">08 / Edit a lesson</a>). New lessons append to the end.</p>
+
+      <h4>Edit a lesson</h4>
+      <p>Click the pencil icon to open the lesson editor inline. All fields are populated with the lesson’s current values. Save commits the change.</p>
+
+      <h4>Delete a lesson</h4>
+      <p>Click the trash icon. Confirms first. <strong>Refuses to delete</strong> if any student has already worked on that lesson — the studio counts <code>lesson_sessions</code> rows pointing at it and shows you the count. Edit the lesson in place instead, or archive the course if it’s past its run.</p>
+
+      <h4>Reorder</h4>
+      <p>Lessons reorder via the API endpoint, but the UI for drag-and-drop reorder isn’t exposed on the lesson list yet. For now, reorder by editing the <code>position</code> field on individual lessons (lower numbers come first), or remove and re-add to the bottom.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Section number" title="Distinguish multiple sections.">
+    <div class="copy">
+      <p>The <strong>Section</strong> field is free-form text up to 64 characters. It shows as a small chip beside the course title throughout the studio (<code>§001</code>, <code>§Fall 2026 §A</code>, etc.). It’s purely display — no special validation.</p>
+      <p>Where it matters most: when you’re running the same course twice in parallel. Cohorts are 1:1 with courses, so the studio assumes one course = one student group. To teach two sections of the same course you <strong>clone the course</strong> and set distinct sections on each clone (e.g. <code>§A</code> and <code>§B</code>, or <code>MWF</code> and <code>TR</code>). Each clone gets its own cohort, its own roster, its own enrollments. The section chip is what reminds you which is which.</p>
+      <p>If you’re only running one section, leave the field empty.</p>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Common edits" title="Three things you’ll do most often.">
+    <div class="copy">
+      <h4>1 · Tighten an AI-proposed lesson</h4>
+      <p>The wizard’s proposals are usually 80% there. The most common edit is to tighten the <em>opening prompt</em> (the first message students see when they enter a lesson) and add a couple of <em>tutor notes</em> (hidden from students, used to steer the AI tutor’s replies). Both are in the lesson editor.</p>
+
+      <h4>2 · Lock a lesson’s media</h4>
+      <p>If you don’t want a student to switch from <code>Code</code> to <code>Image</code> mid-lesson, set the lesson’s media chips to just <code>Code</code>. The studio enforces this server-side — a request to switch modes returns an HTTP 409 and the UI hides the disallowed mode tabs. Empty media chips means unrestricted (the student can use any tool the studio supports).</p>
+
+      <h4>3 · Change the framework for one lesson</h4>
+      <p>The course-level framework you set in the wizard is just a default. Each lesson has its own framework field. To do a single GLSL lesson inside an otherwise p5.js course, open the lesson editor for that one and switch its framework to <code>GLSL</code>. Doesn’t affect the others.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="Lesson editor reference.">
+    <div class="copy">
+      <p>For every field on the lesson editor and what it does at runtime, see <a href="/lessons/edit-lesson">08 / Edit a lesson</a>.</p>
+    </div>
+  </Section>
+</Layout>

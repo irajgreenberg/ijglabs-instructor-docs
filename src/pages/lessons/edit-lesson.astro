@@ -1,0 +1,121 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Edit a lesson" description="Field-by-field reference for the lesson editor: title, framework, learning goals, opening prompt, tutor notes, media chips, and the per-lesson scoring fields.">
+  <Hero
+    number="08"
+    kicker="Lessons"
+    title="Edit a lesson."
+    meta={[
+      { label: 'Open', value: 'Pencil icon on a lesson row' },
+      { label: 'Saves', value: 'On click, immediate' },
+      { label: 'Affects', value: 'Student-facing tutor + locked tools' },
+    ]}
+  >
+    Most fields here are read by the student-facing AI tutor at runtime, not displayed directly. Treat them as instructions to the tutor about how this lesson should feel, not copy for the student.
+  </Hero>
+
+  <Section number="01" kicker="Open the editor" title="Pencil icon next to a lesson.">
+    <div class="copy">
+      <p>From <code>/teacher/courses</code>, select a course, scroll to the Lessons block. Each lesson row has a small pencil icon on the right (between the title area and the trash). Click it. The lesson editor opens as a modal with every field populated from the current lesson values.</p>
+      <p>Click <strong>Save</strong> at the bottom to commit. <strong>Cancel</strong> or close to discard.</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Title + description" title="Student-facing copy.">
+    <div class="copy">
+      <h4>Title</h4>
+      <p>1–200 characters. Shown in the lesson list, navigation, and at the top of the lesson session. Keep it concrete: <em>“Loop your alphabet”</em> is better than <em>“Iteration with type.”</em></p>
+
+      <h4>Description</h4>
+      <p>Up to 2000 characters. One- or two-sentence summary shown in course listings and the student’s lesson card. Optional but strongly recommended — students scan the list before clicking in.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Framework" title="The code engine.">
+    <div class="copy">
+      <p>Three values: <code>p5js</code>, <code>threejs</code>, <code>glsl</code>. Affects only <code>code</code>-mode lessons. The studio passes this as the <code>codeFramework</code> to the code-generation tool, so:</p>
+      <ul>
+        <li><code>p5js</code> — the AI generates p5.js sketches that run in the studio’s p5 renderer. Best for 2D, immediate feedback, beginner-friendly.</li>
+        <li><code>threejs</code> — three.js sketches with WebGL. Best for 3D, intermediate JS comfort.</li>
+        <li><code>glsl</code> — fragment/vertex shaders. Advanced, no entry point for beginners.</li>
+      </ul>
+      <p>If the lesson’s <code>mediaTypes</code> doesn’t include <code>code</code>, this field still has to be set (the column is <code>NOT NULL</code>) but it doesn’t affect runtime behavior. Pick whatever; <code>p5js</code> is a fine default.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Learning goals" title="2–4 specific outcomes.">
+    <div class="copy">
+      <p>A list of 2–4 specific, observable outcomes the student should be able to do by the end of the lesson. The editor accepts one goal per line. The studio joins them as a JSON array.</p>
+      <p>Goals are read by the tutor as part of the lesson context — the tutor uses them to nudge the conversation back on-arc when the student strays. They’re also used by the scoring system at lesson-end to assess mastery.</p>
+      <p>What works: <em>“Use a for-loop to draw 100 letters with random positions”</em> is a real, observable outcome. What doesn’t: <em>“Understand iteration”</em> is too vague — the tutor can’t tell if the student got there.</p>
+    </div>
+    <Callout label="Three to four is the sweet spot">
+      <p>Two goals can be too minimal — the tutor doesn’t have enough to keep the lesson on track. Five+ tend to overlap and confuse the scoring. Three or four well-defined outcomes is the right shape for almost every lesson.</p>
+    </Callout>
+  </Section>
+
+  <Section number="05" kicker="Opening prompt" title="What the student sees first.">
+    <div class="copy">
+      <p>Up to 2000 characters. The first message the student sees when they enter the lesson — pre-written by the tutor as a system-generated assistant message. If empty, the studio uses a default: <em>“Welcome to ‘[Title]’. Tell me what you’d like to create and we’ll build it together.”</em></p>
+      <p>Custom opening prompts are usually 2–4 sentences:</p>
+      <ul>
+        <li>A warm welcome and the lesson’s creative outcome.</li>
+        <li>The first concrete thing to try (specific, low-friction).</li>
+        <li>An invitation to ask if stuck.</li>
+      </ul>
+      <p>Example: <em>“Welcome to Loop Your Alphabet. By the end you’ll have a sketch that draws all 26 letters in a grid using a for-loop. To start, tell me which letter you want to play with first — I’ll set up the canvas. Ask anything along the way.”</em></p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Tutor notes" title="Hidden steering for the AI.">
+    <div class="copy">
+      <p>Up to 10,000 characters. <strong>Not shown to the student.</strong> Read by the tutor as part of the system prompt. Use it to encode all the things you’d tell a TA about how to handle this lesson:</p>
+      <ul>
+        <li>What concepts to introduce in what order.</li>
+        <li>Common student misconceptions and how to redirect.</li>
+        <li>What hints to give vs. what to let the student wrestle with.</li>
+        <li>Vocabulary to use or avoid.</li>
+        <li>How to grade — what mastery looks like for this lesson specifically.</li>
+        <li>References, examples, or external links the tutor can mention.</li>
+      </ul>
+      <p>Tutor notes are the highest-leverage field on this form. A weak set of tutor notes makes the AI tutor feel generic; a rich set makes it feel like a knowledgeable instructor specific to this lesson.</p>
+    </div>
+  </Section>
+
+  <Section number="07" kicker="Media types" title="Locks the chat to specific tools.">
+    <div class="copy">
+      <p>Five chips: <code>Image</code>, <code>Video</code>, <code>3D</code>, <code>Code</code>, <code>App Lab</code>. Click to toggle. Empty = unrestricted (any tool allowed). Non-empty = the student can only use tools matching the selected chips.</p>
+      <p>Covered in detail in <a href="/lessons/media-types">07 / Lesson media types</a> — read it once if you haven’t. Default is what you set at the course wizard level; per-lesson chips override.</p>
+    </div>
+  </Section>
+
+  <Section number="08" kicker="Course-level fields" title="Pass threshold, time, scoring, token budget.">
+    <div class="copy">
+      <p>Four fields are technically per-lesson but most courses set them at the course level and forget — they’re inherited from course defaults at lesson creation time:</p>
+      <ul>
+        <li><strong>Pass threshold</strong> (0–100) — mastery score needed to advance. Default 80.</li>
+        <li><strong>Max time seconds</strong> (0–14400) — per-lesson timer. 0 = unlimited. Default 0.</li>
+        <li><strong>Scoring enabled</strong> (boolean) — whether the lesson is scored at all. Default true.</li>
+        <li><strong>Token budget</strong> (positive int) — soft cap on total chat tokens for the session. Default 10,000. Affects the engagement-score calculation.</li>
+      </ul>
+      <p>Override at the lesson level only when a specific lesson genuinely needs different behavior — e.g. a 90-minute capstone in a course where every other lesson is 30 minutes.</p>
+    </div>
+  </Section>
+
+  <Section number="09" kicker="Save behavior" title="Atomic, immediate.">
+    <div class="copy">
+      <p>Click <strong>Save</strong> and the studio writes every changed field in a single <code>UPDATE</code>. The lesson row updates atomically. New fields are visible immediately on the lesson list and to any student who hasn’t entered the lesson yet.</p>
+      <p>Students who are <em>already</em> in a lesson session keep the old values for the duration of that session — the tutor caches the lesson context at session start and doesn’t re-read mid-session. New sessions get the new values. This is a deliberate consistency choice; otherwise mid-edit changes would surprise students.</p>
+    </div>
+  </Section>
+
+  <Section number="10" kicker="Next" title="The chat-based authoring flow.">
+    <div class="copy">
+      <p>If you’d rather have the AI propose lessons in a chat than fill out this form by hand, see <a href="/lessons/author-with-ai">09 / Author lessons with AI</a>.</p>
+    </div>
+  </Section>
+</Layout>

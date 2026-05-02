@@ -1,0 +1,93 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Lesson media types" description="The five media chips on every lesson — image, video, 3D, code, App Lab — what they actually do at runtime, when to lock them, and when to leave them open.">
+  <Hero
+    number="07"
+    kicker="Lessons"
+    title="Lesson media types."
+    meta={[
+      { label: 'Values', value: 'image · video · 3d · code · app' },
+      { label: 'Empty', value: 'Unrestricted (any tool allowed)' },
+      { label: 'Enforcement', value: 'Server-side; UI hides disallowed tabs' },
+    ]}
+  >
+    The chips on a lesson are not cosmetic. They’re a hard contract: when a lesson has a non-empty media set, the studio refuses to start a chat in any other mode.
+  </Hero>
+
+  <Section number="01" kicker="The five values" title="What each one means.">
+    <div class="copy">
+      <h4>image</h4>
+      <p>AI image generation. The student’s chat exposes <code>generate_image</code> and related tools — Gemini 3 Pro Image, OpenAI’s gpt-image-1.5, the local ComfyUI Flux/SD3.5/Qwen-Image stack. Output is one or more PNGs. Use for ideation, mood boards, asset generation, sketch references.</p>
+
+      <h4>video</h4>
+      <p>AI video generation. Tools: <code>generate_video</code>, <code>edit_image</code> (for first-frame), and the Wan / Hailuo backends. Output is short clips (typically 4–8 s). Use for motion studies, animation experiments, transitions.</p>
+
+      <h4>3d</h4>
+      <p>AI 3D mesh generation. Tools: <code>generate_image</code> (the studio re-renders the 2D source against a light-gray background first), <code>animate_3d</code>, plus the HunYuan3D 2.0/2.1 dual-pass shape→texture pipeline. Output is a GLB. Use for sculpting, character modeling, scene assets.</p>
+
+      <h4>code</h4>
+      <p>Creative coding. Tools: <code>generate_code</code>, <code>edit_code</code>. Framework comes from the lesson’s <code>framework</code> field — <code>p5js</code>, <code>threejs</code>, or <code>glsl</code>. Output is a sketch the student can run in-browser. Use for any lesson that should result in a runnable program.</p>
+
+      <h4>app</h4>
+      <p>App Lab. A guided prototype-building flow with four stages (<em>shape brief</em>, <em>map product</em>, <em>prototype</em>, <em>inspect</em>). Tools: <code>shape_brief</code>, <code>map_product</code>, <code>prototype_app</code>, <code>inspect_app</code>. Output is a small web app the student designs and walks through. Use sparingly — App Lab is advanced.</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Empty vs populated" title="The default is unrestricted.">
+    <div class="copy">
+      <p>If a lesson’s <code>mediaTypes</code> array is empty, the lesson is <strong>unrestricted</strong>. The student can use any tool the studio supports. This is the default for legacy lessons and for any lesson where you don’t set chips.</p>
+      <p>The moment you click any chip, you’re creating a <em>whitelist</em>. The student can only use tools matching the chips you set. Set <code>code</code> only and the chat won’t expose image-generation tools at all — even if the student types <em>“draw me a cat.”</em></p>
+      <p>Server-side enforcement: when a lesson chat is opened, <code>/api/chat</code> rejects (HTTP 409 <code>lesson_media_locked</code>) any request whose <code>mediaMode</code> isn’t in the lesson’s set. The UI hides disallowed mode tabs as a courtesy, but even an attacker scripting requests can’t bypass it.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Picking the right set" title="Most lessons need exactly one.">
+    <div class="copy">
+      <p>The right answer is almost always one chip. Mixed sets exist but are rare:</p>
+      <ul>
+        <li><strong>One chip</strong> — the lesson is about one thing. A figure-drawing lesson is <code>image</code>. A particle-physics simulation is <code>code</code>. A character-modeling lesson is <code>3d</code>.</li>
+        <li><strong>Two chips</strong> — the lesson is a deliberate two-step. <code>image + code</code> for “design a character (image), then code its motion (code)”. <code>image + video</code> for “generate stills, then animate them.”</li>
+        <li><strong>Three or more</strong> — almost never. If your lesson uses three media, it’s probably actually three lessons.</li>
+        <li><strong>Empty</strong> — the lesson is exploratory or a sandbox. Use for the very first lesson of a course where you want students to play around.</li>
+      </ul>
+      <p>The wizard’s AI scaffolder defaults to one chip per lesson (and uses your step-1 default-media-types as a hint). You usually don’t need to change anything in step 3 review.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="When to lock" title="What you’re actually preventing.">
+    <div class="copy">
+      <p>Locking a lesson’s media is mostly about <em>focus</em>, not security. You’re telling the student “this lesson is about X — don’t side-quest into Y.” Reasons to lock:</p>
+      <ul>
+        <li><strong>Pedagogical</strong> — you want them to engage with code, not punt to image generation. Forcing the medium pushes them through the actual learning objective.</li>
+        <li><strong>Quota</strong> — image and video generation are expensive. A code-only lesson uses essentially zero AI quota. If you’re running a class on a tight budget, locking lessons to <code>code</code> protects your spend.</li>
+        <li><strong>Time</strong> — a lesson that has to be done in 30 minutes can’t afford a 4-minute video render plus retries. Lock to fast media.</li>
+      </ul>
+      <p>Reasons <strong>not</strong> to lock:</p>
+      <ul>
+        <li>Discovery / sandbox lessons.</li>
+        <li>Capstone lessons where students choose their own approach.</li>
+        <li>You don’t have a strong opinion. Empty is fine.</li>
+      </ul>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Where to set it" title="Three places.">
+    <div class="copy">
+      <ol>
+        <li><strong>Course Wizard step 1</strong> — sets <em>default</em> media for every AI-proposed lesson in step 3.</li>
+        <li><strong>Course Wizard step 3</strong> — per-lesson chips on each card. Use the <strong>Range assign</strong> helper for chunks.</li>
+        <li><strong>Lesson editor</strong> — open any lesson’s pencil icon on the course detail page. Chips are at the bottom of the form.</li>
+      </ol>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="The lesson editor.">
+    <div class="copy">
+      <p>For every other field on a lesson and what it does at runtime, see <a href="/lessons/edit-lesson">08 / Edit a lesson</a>.</p>
+    </div>
+  </Section>
+</Layout>

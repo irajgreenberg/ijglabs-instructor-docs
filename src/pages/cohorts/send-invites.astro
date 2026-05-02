@@ -1,0 +1,87 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Send invite emails" description="Bulk magic-link invitations to pending cohort students. The 60-second per-recipient cooldown. What the email looks like and how the deep-link to /login works.">
+  <Hero
+    number="06"
+    kicker="Cohorts"
+    title="Send invite emails."
+    meta={[
+      { label: 'Targets', value: 'Pending students only' },
+      { label: 'Mechanism', value: 'Friendly HTML email → /login?email=…' },
+      { label: 'Cooldown', value: '60 s per recipient' },
+    ]}
+  >
+    One click sends a sign-in invitation to every pending student in the cohort. Each invite contains a deep link that pre-fills the login form so the student lands one click away from the standard Auth.js magic-link flow.
+  </Hero>
+
+  <Section number="01" kicker="The button" title="Send invites (N).">
+    <div class="copy">
+      <p>The cohort panel header has three buttons. The leftmost is <strong>Send invites (N)</strong> — N is the count of pending students. The button is disabled when N is zero (no pending students to invite).</p>
+      <p>Click it. The studio sends an HTML email to every pending student in one server call. A status banner appears below the header: <em>“X sent · Y skipped (sent &lt;60s ago) · Z failed.”</em></p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="What the email looks like" title="Friendly, HTML, single CTA.">
+    <div class="copy">
+      <p>Subject line: <strong>You’re invited to [Course Title] (§Section)</strong>. The body text:</p>
+      <blockquote>
+        <p>[Your name] (your.email@school.edu) has invited you to join “[Course Title]” on IJG Studio.</p>
+        <p>Use this email address (their.email@school.edu) to sign in — your access has been pre-approved.</p>
+        <p><strong>[Sign in to start]</strong> — a button that opens <code>https://ijglabs.ai/login?email=their.email@school.edu</code></p>
+        <p>On the sign-in page, click <em>Email me a sign-in link</em> to receive a one-click magic link.</p>
+      </blockquote>
+      <p>That’s it. The student clicks the button, lands on the login page with their email pre-filled, clicks <strong>Email me a sign-in link</strong>, gets the actual magic-link email from Auth.js, clicks the magic link, and they’re in the studio with the cohort role applied.</p>
+      <p>Two clicks in two emails. Could it be one click? Yes, but only if we generated and embedded an Auth.js verification token directly. We don’t do that — it would couple us to Auth.js internals and break silently on the next provider upgrade. Two clicks is the price of a stable contract.</p>
+    </div>
+    <Callout label="From address">
+      <p>Invitations are sent <em>from</em> whatever address Studio is configured with — usually <code>noreply@ijglabs.ai</code> or your school’s SMTP from-address. Replies go nowhere useful; tell students to email you directly if they have questions, not reply to the invite.</p>
+    </Callout>
+  </Section>
+
+  <Section number="03" kicker="Cooldown" title="60-second per-recipient guard.">
+    <div class="copy">
+      <p>Each recipient has a 60-second cooldown. If you click <strong>Send invites</strong> twice within a minute, the second click skips anyone who was sent to in the last 60 seconds. The status banner reports them in the “skipped” count and lists the addresses (up to 5).</p>
+      <p>Reason: prevent accidental double-clicks from spamming students. The cooldown is server-side and per-email, so it can’t be bypassed by clicking multiple buttons fast.</p>
+      <p>If you genuinely need to resend within 60 seconds (e.g. an email bounced and you fixed it), wait the cooldown out — there’s no override.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Per-row resend" title="Send icon next to a single pending row.">
+    <div class="copy">
+      <p>Each pending row has a small paper-airplane icon between the <code>Pending sign-up</code> chip and the trash. Click it to send (or resend) only that one student’s invitation. Same email content, same cooldown rule.</p>
+      <p>Once a student has been sent at least one invitation, the row’s subtitle changes from <em>“Will be added on first sign-in”</em> to <em>“Invited 12m ago · pending sign-up.”</em> The relative timestamp updates on every render.</p>
+      <p>Resend a single student when:</p>
+      <ul>
+        <li>They tell you they didn’t get it (check spam first).</li>
+        <li>It’s been a few days and you want to nudge them.</li>
+        <li>They mistyped their email originally and you’ve fixed it (remove the wrong row, add the right one, send).</li>
+      </ul>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Failure modes" title="What can go wrong, and what it means.">
+    <div class="copy">
+      <h4>“Email invites are not configured.”</h4>
+      <p>The studio’s SMTP credentials aren’t set on the server. Contact your admin — they need to set <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code>, and <code>AUTH_EMAIL_FROM</code> in the production environment.</p>
+
+      <h4>Status banner shows non-zero “failed”.</h4>
+      <p>The studio attempted the send, but the SMTP server rejected it. The most common cause is a malformed email — the parser shouldn’t accept those, but if a malformed address slipped through, you’ll see it in the failures list. Remove that row and try again.</p>
+
+      <h4>Status banner shows non-zero “skipped (sent &lt;60s ago)”.</h4>
+      <p>You clicked too soon after a previous send. Wait, then click again.</p>
+
+      <h4>Student says they got the invite but the link sends them to a “Server Not Found” page.</h4>
+      <p>This is a DNS / network issue on their end, not a Studio issue. The deep link is just <code>https://ijglabs.ai/login?email=…</code> — if their DNS can resolve <code>ijglabs.ai</code> they should land on the login page fine. Have them try a different network or browser.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="What students do next.">
+    <div class="copy">
+      <p>From the student’s side, the path after they receive the invite is identical to <a href="/getting-started">01 / Getting started</a> — they click the link, land on the login page, click <strong>Email me a sign-in link</strong>, click the magic link, and they’re in. The cohort role is applied automatically the moment Auth.js consumes their <code>allowed_emails</code> row.</p>
+    </div>
+  </Section>
+</Layout>

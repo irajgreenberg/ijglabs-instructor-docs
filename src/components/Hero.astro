@@ -1,0 +1,22 @@
+---
+interface Props {
+  number?: string;
+  kicker?: string;
+  title: string;
+  meta?: { label: string; value: string }[];
+}
+const { number, kicker, title, meta } = Astro.props;
+---
+<section class="grid-section hero">
+  {number && <span class="section-number">{number}</span>}
+  {kicker && <span class="kicker">{kicker}</span>}
+  <h1>{title}</h1>
+  <div class="lead"><slot /></div>
+  {meta && meta.length > 0 && (
+    <aside class="hero-meta" aria-label="Page metadata">
+      {meta.map((row) => (
+        <p><span class="label">{row.label}</span><span>{row.value}</span></p>
+      ))}
+    </aside>
+  )}
+</section>

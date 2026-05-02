@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import Callout from '../components/Callout.astro';
+---
+<Layout title="Troubleshooting" description="The recurring gotchas — JWT staleness, role changes that don't stick, scrolling that doesn't, CSV imports that find zero emails, and a few more.">
+  <Hero
+    number="11"
+    kicker="Help"
+    title="Troubleshooting."
+    meta={[
+      { label: 'Coverage', value: 'Recurring issues teachers hit' },
+      { label: 'Filing', value: 'irajgreenberg/ijglabs/issues' },
+    ]}
+  >
+    Most surprises in Studio fall into one of these patterns. Skim once; come back as a reference when something’s off.
+  </Hero>
+
+  <Section number="01" kicker="Auth + roles" title="“I changed a user’s role but it doesn’t take effect.”">
+    <div class="copy">
+      <p>Auth.js stores the user’s role in a session JWT, not a database lookup on every request. When an admin changes a role from <code>user</code> to <code>teacher</code> on the Users tab, the database updates immediately — but any existing session for that user still carries the old role until the JWT is reissued at next sign-in.</p>
+      <p>Fix: tell the user to sign out, then sign back in. The new role applies on the new session. There’s no “invalidate session” button; we deliberately don’t kick people out of the studio when admin metadata changes.</p>
+      <p>Test: as the admin, switch the role and refresh the Users tab. The dropdown reflects the new value (DB is updated). As the user, sign out → sign in. Their dashboard now shows surfaces matching the new role (graduation cap for teachers, shield for admins).</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Scrolling" title="“The page won’t scroll past the viewport.”">
+    <div class="copy">
+      <p>Studio sets <code>body &#123; overflow: hidden &#125;</code> globally for the chat-and-canvas layout. Pages that need to scroll (admin, teacher dashboard, courses list, commons) are individually responsible for their own scroll container.</p>
+      <p>If you find a page where you can’t scroll past content that runs below the viewport, that page is missing the inline scroll fix. Tell us — file an issue with the URL and a short description, and we’ll patch it. The fix pattern is documented in commit history.</p>
+      <p>Workaround: open browser devtools, find the page’s outer wrapper, manually set <code>height: 100vh</code> and add <code>overflow-y: auto</code> to its inner content area. Won’t persist; only useful to confirm the page is the issue.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Cohort UI" title="“The cohort panel says no cohort attached.”">
+    <div class="copy">
+      <p>You’re looking at a course created before the 1:1 cohort model shipped. The first time you open the cohort panel for any course, the studio auto-creates a cohort row pinned to that course. If you’re seeing the “no cohort” banner today, just open the cohort panel once — the row gets created lazily, and the banner is replaced with the empty roster + working buttons.</p>
+      <p>If the banner keeps reappearing after multiple loads, file an issue. Don’t edit the database manually.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="CSV imports" title="“The preview shows 0 valid emails.”">
+    <div class="copy">
+      <p>Two causes:</p>
+      <ul>
+        <li><strong>The email column is missing.</strong> Open the file in a spreadsheet and confirm there’s a column with values like <code>name@domain.tld</code>. Re-export from your registrar with email included.</li>
+        <li><strong>The values aren’t real emails.</strong> Some exports list student IDs as <code>123456@school.edu</code> internally but render them as <code>123456</code> with the domain implicit. The parser only accepts fully-qualified addresses. Re-export with explicit <code>@domain</code>.</li>
+      </ul>
+      <p>If you see <em>“Skipped (no email)”</em> with a non-zero count, those rows had something in the email column but it wasn’t a valid address. The parser drops them silently and continues with the rest. Open the file and check those rows manually.</p>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Send invites" title="“The Send invites button is disabled.”">
+    <div class="copy">
+      <p>The button is disabled when there are zero pending students. Reasons:</p>
+      <ul>
+        <li>You haven’t added anyone to the cohort yet — only enrolled members appear, and enrolled members already have accounts so they don’t need invites.</li>
+        <li>You added students by single-email and they all already had Studio accounts. They went straight to enrolled, not pending.</li>
+        <li>Everyone you invited has already signed in — they’ve been promoted from pending to enrolled.</li>
+      </ul>
+      <p>To check: the cohort header subtitle reads <em>“X enrolled · Y pending sign-up.”</em> If Y is zero, the button is correctly disabled — there’s nobody to invite.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Send invites" title="“Sent 0, skipped N (sent <60s ago).”">
+    <div class="copy">
+      <p>You clicked <strong>Send invites</strong> twice within a minute. The studio applies a 60-second per-recipient cooldown to prevent accidental spam. Wait the full minute, click again. The skipped students get sent on the second click.</p>
+      <p>The cooldown is per-recipient, so if you mix-and-match (some students were sent 30 seconds ago, others a week ago), the green “sent” count and yellow “skipped” count add up to your total pending — only the ones too-recently-invited are skipped.</p>
+    </div>
+  </Section>
+
+  <Section number="07" kicker="Send invites" title="“Email invites are not configured.”">
+    <div class="copy">
+      <p>Server-side SMTP credentials aren’t set. Contact your admin. The studio expects four environment variables (<code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code>) plus a from-address (<code>AUTH_EMAIL_FROM</code> or <code>SMTP_FROM</code>). Until those are set, the invite endpoint returns HTTP 503 and the UI surfaces this error.</p>
+    </div>
+  </Section>
+
+  <Section number="08" kicker="Lessons" title="“The student switched to image mode but the lesson is locked to code.”">
+    <div class="copy">
+      <p>That can’t actually happen. The studio enforces media-type locks server-side — the chat API rejects (HTTP 409 <code>lesson_media_locked</code>) any request whose mode isn’t in the lesson’s allowed set. The UI also hides disallowed mode tabs.</p>
+      <p>If a student tells you they switched modes, one of three things is true:</p>
+      <ul>
+        <li>The lesson’s media-types field is empty (= unrestricted). Go to the lesson editor and set chips.</li>
+        <li>They’re looking at a different lesson than you think.</li>
+        <li>They started the session before you set the chips. Existing sessions keep their old context. New sessions will respect the new chips.</li>
+      </ul>
+    </div>
+  </Section>
+
+  <Section number="09" kicker="Lessons" title="“I can’t delete a lesson — it says X student sessions exist.”">
+    <div class="copy">
+      <p>Working as designed. The studio refuses to delete a lesson that students have ever worked on, because deletion would cascade-remove their session history, scores, and submitted work. Edit the lesson in place instead, or archive the entire course at the end of the term.</p>
+      <p>If you genuinely need to remove a lesson with student work, the only path is to either delete the entire course (cascades through everything) or to ask a developer to manually clean up the database. There’s no UI for the latter.</p>
+    </div>
+  </Section>
+
+  <Section number="10" kicker="Cloning" title="“I cloned a course and the cohort is empty.”">
+    <div class="copy">
+      <p>That’s correct. Cloning a course copies the lessons but creates a <em>fresh empty cohort</em> on the clone. Cohorts are per-course (1:1 with the course); copying memberships across would require deciding what to do with each student, which has no obvious right answer (the same student in two sections? in just one?). The studio punts: empty cohort, you decide.</p>
+      <p>To re-roster the clone: import the same CSV you used originally, or copy individual emails by hand from the original cohort.</p>
+    </div>
+  </Section>
+
+  <Section number="11" kicker="Filing issues" title="When in doubt, open one.">
+    <div class="copy">
+      <p>If you hit something not covered here, the project tracks issues at <a href="https://github.com/irajgreenberg/ijglabs/issues">irajgreenberg/ijglabs/issues</a>. Filing is encouraged — even minor wording suggestions help. The Studio also has an in-app feedback widget (the corner button) that drops a pre-filled issue with your viewport context attached.</p>
+    </div>
+  </Section>
+</Layout>

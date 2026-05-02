@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+
+const guides = [
+  {
+    num: '01',
+    href: '/getting-started',
+    title: 'Getting started',
+    blurb: 'Sign in, find the Teacher Dashboard, confirm your role.',
+  },
+  {
+    num: '02',
+    href: '/courses/create-with-wizard',
+    title: 'Create a course with the wizard',
+    blurb: 'Four-step Course Wizard: config, syllabus + AI brainstorm, review proposed lessons, create.',
+  },
+  {
+    num: '03',
+    href: '/courses/edit-course',
+    title: 'Edit a course or its lessons',
+    blurb: 'Section number, lesson editor, framework + media types, clone for a new section.',
+  },
+  {
+    num: '04',
+    href: '/cohorts/overview',
+    title: 'Cohort overview',
+    blurb: 'How a cohort relates to a course, status states, enrolled vs pending students.',
+  },
+  {
+    num: '05',
+    href: '/cohorts/add-students',
+    title: 'Add students',
+    blurb: 'One email at a time or a CSV roster — registrar exports work as-is.',
+  },
+  {
+    num: '06',
+    href: '/cohorts/send-invites',
+    title: 'Send invite emails',
+    blurb: 'Bulk magic-link invites, individual resends, the 60-second cooldown.',
+  },
+  {
+    num: '07',
+    href: '/lessons/media-types',
+    title: 'Lesson media types',
+    blurb: 'Image, video, 3D, code, App Lab — what each does and when to lock them.',
+  },
+  {
+    num: '08',
+    href: '/lessons/edit-lesson',
+    title: 'Edit a lesson',
+    blurb: 'Title, framework, learning goals, opening prompt, tutor notes, media chips.',
+  },
+  {
+    num: '09',
+    href: '/lessons/author-with-ai',
+    title: 'Author lessons with AI',
+    blurb: 'Free-form chat that proposes lesson scaffolds you can apply with one click.',
+  },
+  {
+    num: '10',
+    href: '/publish',
+    title: 'Publish & share',
+    blurb: 'Enrollment vs Open mode, invite codes, listing in the Learning Commons.',
+  },
+  {
+    num: '11',
+    href: '/troubleshooting',
+    title: 'Troubleshooting',
+    blurb: 'Common gotchas — invite buttons, role staleness, CSV column detection.',
+  },
+];
+---
+<Layout title="Welcome" description="Comprehensive instructor documentation for IJG Studio: design, run, and manage AI-art courses.">
+  <Hero
+    number="00"
+    kicker="Public guide"
+    title="Teach with IJG Studio."
+    meta={[
+      { label: 'Studio', value: 'ijglabs.ai' },
+      { label: 'Source', value: 'instructor-docs' },
+      { label: 'For', value: 'Teachers + admins' },
+      { label: 'Time to first published course', value: '~15 min' },
+    ]}
+  >
+    Everything you need to design a course, scaffold lessons with AI, import a roster, and invite your students. Read it in order if you’re new; jump to a section when you know what you need.
+  </Hero>
+
+  <Section number="01" kicker="Index" title="The full guide.">
+    <div class="toc">
+      {guides.map((g) => (
+        <a class="toc-row" href={g.href}>
+          <span class="num">{g.num}</span>
+          <span class="title">{g.title}</span>
+          <span class="blurb">{g.blurb}</span>
+          <span class="arrow">→</span>
+        </a>
+      ))}
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Conventions" title="How to read this guide.">
+    <div class="copy">
+      <p>Every walkthrough is anchored to specific UI labels — the exact words on buttons, fields, and chips. When you see <strong>Send invites (16)</strong> below, that is what the button reads on the screen, character for character. Field names are the labels above the input. If a label here doesn’t match the screen, this guide is wrong — please <a href="https://github.com/irajgreenberg/ijglabs-instructor-docs/issues/new">open an issue</a>.</p>
+      <p>Numbered steps are sequential. Run them in order. Optional follow-ups are called out as such.</p>
+      <p>Code-style snippets like <code>/teacher/courses</code> are URLs you can paste into the address bar; <code>cohort_memberships</code> is a database table name that helps you talk to admins or developers if something goes wrong.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Need help?" title="Where to ask.">
+    <div class="copy">
+      <p>Open an issue on <a href="https://github.com/irajgreenberg/ijglabs/issues">irajgreenberg/ijglabs</a> for app bugs or feature requests. Email <a href="mailto:support@ijglabs.ai">support@ijglabs.ai</a> for account, role, or admin help.</p>
+    </div>
+  </Section>
+</Layout>

@@ -1,0 +1,96 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Author lessons with AI" description="The chat-based course-author workspace: free-form conversation that produces lesson scaffolds you can apply with one click.">
+  <Hero
+    number="09"
+    kicker="Lessons"
+    title="Author lessons with AI."
+    meta={[
+      { label: 'Surface', value: '/teacher/courses/[id]/author' },
+      { label: 'Open from', value: 'Author with AI button on course detail' },
+      { label: 'Output', value: 'Lessons added to the current course' },
+    ]}
+  >
+    The chat-based authoring workspace is a different kind of AI than the wizard. Instead of generating a fixed-count scaffold from a syllabus, it lets you riff on lesson ideas and apply them one at a time.
+  </Hero>
+
+  <Section number="01" kicker="Open it" title="From the course detail.">
+    <div class="copy">
+      <p>From <code>/teacher/courses</code>, select a course. In the header card, click <strong>Author with AI</strong>. You navigate away from the dashboard to a chat-only workspace at <code>/teacher/courses/[id]/author</code>.</p>
+      <p>The workspace has three areas:</p>
+      <ul>
+        <li><strong>Top bar</strong> — “Authoring: [Course Title]” with a back arrow.</li>
+        <li><strong>Center chat</strong> — your conversation with the curriculum-design AI.</li>
+        <li><strong>Right sidebar</strong> — the current lesson list of this course (read-only here; lessons added by clicking buttons in the chat replies appear in this list).</li>
+      </ul>
+      <p>The conversation is persistent — the studio stores it as a chat session pinned to this course. Closing the tab and coming back later picks up where you left off.</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="The conversation" title="Free-form, opinionated.">
+    <div class="copy">
+      <p>The AI here is configured as a senior curriculum-design partner. It’ll ask pointed questions, push back on vague topics, propose lesson arcs, and produce structured lesson scaffolds when you ask for them.</p>
+      <p>Things that work well:</p>
+      <ul>
+        <li><em>“I’m teaching a 12-week generative typography course. Propose lesson 5 — students should be ready for shaders.”</em></li>
+        <li><em>“The lesson on noise feels too narrow. Suggest a richer arc that includes 1D, 2D, and 3D noise applications.”</em></li>
+        <li><em>“Make lessons 4–7 coding-only. Re-emit them with media: code.”</em></li>
+        <li><em>“Add a capstone lesson. Mixed media. Should integrate everything from lessons 1–11.”</em></li>
+      </ul>
+      <p>The AI will respond with prose plus, when appropriate, structured lesson blocks.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Lesson blocks" title="Click Create lesson.">
+    <div class="copy">
+      <p>When the AI proposes a lesson, it formats it as a markdown block. The studio detects these blocks and renders them as a card under the AI’s reply with the title, framework, goal count, and a <strong>+ Create lesson</strong> button.</p>
+      <p>Click <strong>Create lesson</strong> to apply that proposal. The studio inserts the lesson at the end of the course’s lesson list, with the title, description, framework, learning goals, opening prompt, tutor notes, and media types from the AI’s block. The card flips to <code>added</code> with a green checkmark; you can’t add the same proposal twice.</p>
+      <p>Before you click Create, you can also tweak the media chips inline on the card — toggle <code>image</code>, <code>video</code>, etc. Whatever you set there overrides the AI’s defaults for this one lesson.</p>
+    </div>
+    <Callout label="The AI doesn’t edit existing lessons">
+      <p>The author chat can <em>propose</em> revisions to existing lessons (re-emitting them as new lesson blocks), but clicking Create on a revision adds a <em>new</em> lesson — it doesn’t modify the old one. To replace, delete the old lesson manually after creating the revision.</p>
+    </Callout>
+  </Section>
+
+  <Section number="04" kicker="Range commands" title="Bulk media reassignment in chat.">
+    <div class="copy">
+      <p>The AI is trained to respond to range commands. Useful patterns:</p>
+      <ul>
+        <li><em>“Make lessons 4–7 coding”</em> — re-emits those four lessons with <code>media: code</code>.</li>
+        <li><em>“Add image to every lesson in the first third”</em> — re-emits lessons 1–4 (assuming a 12-lesson course) with <code>media: image, code</code> or whatever they had plus image.</li>
+        <li><em>“Convert lesson 9 from app to code”</em> — re-emits just lesson 9.</li>
+      </ul>
+      <p>These don’t mutate the existing lessons directly. They produce new proposals you click Create on. To actually replace an old lesson with a re-emitted one: create the new one, then delete the old one from the course detail page.</p>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="When to use this vs. the wizard" title="Two different shapes.">
+    <div class="copy">
+      <h4>Use the wizard when…</h4>
+      <ul>
+        <li>You’re creating a course from scratch.</li>
+        <li>You have a known lesson count.</li>
+        <li>You want a one-shot scaffold to react to.</li>
+      </ul>
+
+      <h4>Use the author chat when…</h4>
+      <ul>
+        <li>The wizard scaffold needs surgery.</li>
+        <li>You’re adding lessons to an existing course mid-term.</li>
+        <li>You want to iterate on individual lesson ideas before committing.</li>
+        <li>You want to brainstorm pedagogical structure with another “mind.”</li>
+      </ul>
+      <p>Both flows write to the same lessons table. There’s no incompatibility — wizard-created lessons coexist with author-chat-added lessons in the same course.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="Publish.">
+    <div class="copy">
+      <p>Once the lessons feel right, you’re ready to publish the course and start admitting students. See <a href="/publish">10 / Publish &amp; share</a>.</p>
+    </div>
+  </Section>
+</Layout>

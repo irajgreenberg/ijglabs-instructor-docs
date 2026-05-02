@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import Callout from '../components/Callout.astro';
+---
+<Layout title="Getting started" description="Sign in to IJG Studio, confirm your role, and open the Teacher Dashboard.">
+  <Hero
+    number="01"
+    kicker="Onboarding"
+    title="Sign in. Open the Teacher Dashboard."
+    meta={[
+      { label: 'URL', value: 'https://ijglabs.ai' },
+      { label: 'Auth', value: 'Google OAuth or email magic-link' },
+      { label: 'Required role', value: 'teacher or admin' },
+    ]}
+  >
+    Two minutes from a fresh browser to your courses. Most accounts are pre-authorized by an admin before they sign in for the first time.
+  </Hero>
+
+  <Section number="02" kicker="Prerequisite" title="Your email must be on the whitelist.">
+    <div class="copy">
+      <p>IJG Studio uses an explicit email allowlist for sign-ins. If your email is not on it, Auth.js will refuse the login with <code>AccessDenied</code> and you will land back on the login page with an error banner.</p>
+      <p>Whitelisting is an admin task. When admins add you they pre-assign your <strong>role</strong> (most likely <code>teacher</code>) and optionally drop you into a specific cohort. Both effects fire on first sign-in — you don’t have to do anything other than sign in.</p>
+      <p>If you’re not sure whether you’re whitelisted, try signing in once. If it fails, contact your admin with the exact wording of the error you saw.</p>
+    </div>
+  </Section>
+
+  <Section number="03" kicker="Step 01 / Sign in" title="Open ijglabs.ai/login.">
+    <div class="copy">
+      <p>Go to <a href="https://ijglabs.ai/login">https://ijglabs.ai/login</a>. You’ll see two options:</p>
+      <ul>
+        <li><strong>Email magic link.</strong> Type your email and click <strong>Email me a sign-in link</strong>. The link arrives in seconds and is single-use, expires in 15 minutes. Click it from the same browser. Use this if your school uses Google but you don’t want to bring your work account into Studio.</li>
+        <li><strong>Sign in with Google.</strong> Standard Google OAuth. Pick the account that matches your whitelisted email.</li>
+      </ul>
+      <p>Both options drop you on the studio home (<code>/</code>) the moment auth completes.</p>
+    </div>
+  </Section>
+
+  <Section number="04" kicker="Step 02 / Reach the Teacher Dashboard" title="Click the graduation cap.">
+    <div class="copy">
+      <p>Studio’s left sidebar has icons for the main surfaces. The graduation-cap icon (the one that looks like a mortarboard) opens <code>/teacher</code> — the Teacher Dashboard. That’s your home base for everything in this guide.</p>
+      <p>If you don’t see the graduation cap, your account is missing the <code>teacher</code> or <code>admin</code> role even though sign-in worked. Email your admin and ask them to set the role on the Users tab of <code>/admin</code>.</p>
+    </div>
+    <Callout label="Role staleness — important">
+      <p>If an admin upgraded your role <em>while you were signed in</em>, the change won’t take effect until you sign out and back in. Auth.js stores the role in your session JWT and only refreshes it at login. Sign out → sign in → graduation cap appears.</p>
+    </Callout>
+  </Section>
+
+  <Section number="05" kicker="Step 03 / Confirm what you see" title="Two panels, one big button.">
+    <div class="copy">
+      <p>The Teacher Dashboard splits in two. On the left is <strong>My Cohorts</strong> — a vertical list of cohorts attached to courses you own (or, if you’re an admin, every cohort in the system). On the right is the <strong>active cohort detail</strong> — a header row with student/teacher/status counts and a Roster table below.</p>
+      <p>Top-right of the page header you’ll see a <strong>Courses</strong> button. Click it to reach <code>/teacher/courses</code> — that’s the surface for creating and editing courses themselves. The dashboard you land on first is for monitoring the people in them.</p>
+      <p>If your cohort list is empty, that’s expected on a fresh account. The next page walks you through creating your first course (which auto-creates an empty cohort to populate).</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Next" title="Create your first course.">
+    <div class="copy">
+      <p>Continue to <a href="/courses/create-with-wizard">02 / Create a course with the wizard</a>. The wizard is the fastest path from “I have an idea” to a draft course with lessons and an empty cohort.</p>
+    </div>
+  </Section>
+</Layout>

@@ -1,0 +1,26 @@
+---
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const sections = [
+  { label: 'Home', href: '/', match: '/' },
+  { label: 'Courses', href: '/courses/create-with-wizard', match: '/courses' },
+  { label: 'Cohorts', href: '/cohorts/overview', match: '/cohorts' },
+  { label: 'Lessons', href: '/lessons/media-types', match: '/lessons' },
+  { label: 'Publish', href: '/publish', match: '/publish' },
+  { label: 'Help', href: '/troubleshooting', match: '/troubleshooting' },
+];
+const isCurrent = (m: string) => m === '/' ? path === '/' : path.startsWith(m);
+---
+<header class="site-header" role="banner">
+  <a class="mark" href="/">
+    IJG Studio
+    <span>Instructor Guide</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    {sections.map((s) => (
+      <a href={s.href} aria-current={isCurrent(s.match) ? 'page' : undefined}>{s.label}</a>
+    ))}
+    <a href="https://ijglabs.ai" rel="noopener">Studio</a>
+    <a href="https://github.com/irajgreenberg/ijglabs-instructor-docs" rel="noopener">GitHub</a>
+    <button class="theme-toggle" type="button" aria-label="Toggle color theme">light</button>
+  </nav>
+</header>

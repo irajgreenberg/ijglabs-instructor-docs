@@ -1,0 +1,169 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import Callout from '../../components/Callout.astro';
+---
+<Layout title="Create a course with the wizard" description="Walk through the four-step Course Wizard: configure the course, supply or brainstorm a syllabus, review proposed lessons, and create.">
+  <Hero
+    number="02"
+    kicker="Courses"
+    title="Create a course with the wizard."
+    meta={[
+      { label: 'Surface', value: '/teacher/courses' },
+      { label: 'Steps', value: 'Config · Syllabus · Review · Create' },
+      { label: 'Time', value: '5–12 minutes' },
+      { label: 'Output', value: 'Draft course + lessons + empty cohort' },
+    ]}
+  >
+    The Course Wizard is the fastest path from a course idea to a draft course with lessons and a roster waiting to be filled. Four steps. You can drop out at step one and author manually instead.
+  </Hero>
+
+  <Section number="01" kicker="Open the wizard" title="From the courses page.">
+    <div class="copy">
+      <p>From the Teacher Dashboard, click <strong>Courses</strong> in the top-right of the header to land on <code>/teacher/courses</code>. The page splits into a left sidebar (your courses) and a right detail pane.</p>
+      <p>Click <strong>+ New</strong> at the top of the sidebar. The Course Wizard modal opens.</p>
+    </div>
+  </Section>
+
+  <Section number="02" kicker="Step 01 / Config" title="Title, section, framework, defaults.">
+    <div class="copy">
+      <p>Step one collects the course-level facts. Required fields show a red asterisk; everything else is optional or has a sensible default.</p>
+
+      <h4>Course title</h4>
+      <p>Required. The student-facing name of the course. 1–200 characters. Examples: <em>Intro to Generative Art</em>, <em>CRCP 1310 Introduction to Creative Coding</em>, <em>AI Literacy — TMP Spring</em>.</p>
+
+      <h4>Description</h4>
+      <p>Optional. One- or two-sentence summary visible in course listings and the Learning Commons. Up to 2000 characters but you’ll rarely want more than three sentences.</p>
+
+      <h4>Section</h4>
+      <p>Optional. Free-form text up to 64 characters. Use it to distinguish sections of the same course you’re running in parallel — <code>001</code>, <code>Fall 2026 §A</code>, <code>MWF 10am</code>, <code>Section B / Tue/Thu</code>. The section appears as a chip next to the course title throughout the studio. Cohorts are 1:1 with courses, so to teach the same content to two groups you <strong>clone the course</strong> and give each clone a different section.</p>
+
+      <h4>Framework</h4>
+      <p>Pick one of <code>p5.js</code>, <code>three.js</code>, or <code>GLSL</code>. This only affects code-mode lessons — for image, video, 3D, or App Lab lessons, the framework is irrelevant. If your course is mixed media, set it to whatever the first code lesson will use; you can override per lesson later.</p>
+
+      <h4>Number of lessons</h4>
+      <p>1 to 30. The AI scaffolder will propose exactly this many lessons in step 3. Pick a count that maps to your real course length (e.g. 12 for a semester-long undergraduate course meeting twice a week, 5 for a one-week workshop).</p>
+
+      <h4>Pass threshold to advance</h4>
+      <p>A 0–100 slider with 5-point steps. The mastery score (0–100) a student needs on each lesson before the system advances them to the next. Default is 80. Lower it for self-paced exploration; raise it for high-stakes assessment.</p>
+
+      <h4>Max time per lesson</h4>
+      <p>Presets: <code>No timer</code>, <code>20 min</code>, <code>30 min</code>, <code>45 min</code>, <code>60 min</code>, <code>90 min</code>. When the timer expires, the student’s current score is locked in and they auto-advance. Pick the preset closest to your real class period; <code>No timer</code> is fine for homework-style courses.</p>
+
+      <h4>Default media types</h4>
+      <p>A row of chips: <code>Image</code>, <code>Video</code>, <code>3D</code>, <code>Code</code>, <code>App Lab</code>. Click to toggle; multi-select is allowed. These become the <em>per-lesson</em> defaults applied during AI scaffolding — empty means the AI picks per topic, otherwise every proposed lesson starts with this set. You can override individual lessons in step 3.</p>
+      <p>Pick one if your course is single-medium (an all-coding course → <code>Code</code> only). Pick two or three if you want a mixed arc (<code>Image + Code</code> for a “design then animate” series). Leave empty if you have no preference and want maximum AI flexibility.</p>
+
+      <h4>Skip — create empty course</h4>
+      <p>A small text link at the bottom of step 1. Click it to create the course immediately with no lessons; you’ll author lessons one at a time afterwards. Useful when you have very specific lesson plans already drafted and don’t want the AI guessing.</p>
+    </div>
+    <Callout label="Recommended for your first run">
+      <p>Title, lesson count, and one default media type. Skip the section field. Click <strong>Next</strong> to move on; you can always come back.</p>
+    </Callout>
+  </Section>
+
+  <Section number="03" kicker="Step 02 / Syllabus" title="Upload, paste, or brainstorm with AI.">
+    <div class="copy">
+      <p>Step two is where you tell the AI what the course is actually about. Three input methods — use one or stack them. The more concrete you are, the better the proposed lessons in step 3.</p>
+
+      <h4>A · Upload a syllabus file</h4>
+      <p>Click <strong>Upload syllabus</strong> in the dashed-border drop zone. Accepts <code>.pdf</code>, <code>.docx</code>, <code>.md</code>, <code>.markdown</code>, <code>.txt</code>, or <code>.text</code>, up to <strong>15 MB</strong>. The studio extracts plain text from the file (PDF text layers, DOCX runs, markdown, etc.) and shows a summary — filename + character count. Click <strong>Remove</strong> to clear.</p>
+      <p>What works well: an existing syllabus document, an outline you wrote in Notion or Google Docs and exported as PDF/Markdown, a topic list with bullet points. What works less well: scanned PDFs without OCR (no extractable text), slide decks (low text density), spreadsheets.</p>
+
+      <h4>B · Paste text directly</h4>
+      <p>Below the upload zone is a multi-line textarea labeled <strong>Or paste text directly</strong>. Drop in whatever you have — a topic list, a course description, learning objectives, even rough notes. The AI reads it the same way it reads an uploaded file.</p>
+
+      <h4>C · Brainstorm with AI</h4>
+      <p>The most useful option, especially if you’re still shaping the course. Below the textarea is a <strong>Brainstorm with AI</strong> panel — a chat window that opens a back-and-forth with a curriculum-design assistant.</p>
+      <ul>
+        <li>Type a starting prompt: who the audience is, what the goal is, what tools they’ll use, time budget. Example: <em>“12-lesson undergrad course on generative typography. Students know basic JavaScript. Each class is 75 min. Goal is by end they can produce a generative type poster series.”</em></li>
+        <li>The AI replies with pointed questions, pushes back on ambiguity, and proposes lesson arcs. Have the conversation as long as you need.</li>
+        <li>When you’re happy, click <strong>Use as syllabus ↑</strong>. The studio sends the full transcript to a Gemini Pro summarizer that distills the conversation into a structured syllabus document and pastes it into the textarea above. If the textarea isn’t empty you’ll get a <em>“This will replace the current syllabus text above. Continue?”</em> confirm — say yes to overwrite.</li>
+        <li>Click <strong>Clear</strong> to wipe the conversation and start over.</li>
+      </ul>
+      <p>Skip step 2 entirely (no upload, no paste, no chat) and click <strong>Suggest lessons</strong> if you want the AI to scaffold from just the title alone. The result will be more generic but still usable.</p>
+    </div>
+
+    <Callout label="Why two AI calls">
+      <p>The brainstorm runs on Gemini Flash for fast conversational turns. The “Use as syllabus” summarization runs on Gemini Pro because that one-shot quality directly determines the lesson scaffold quality in step 3. You don’t pay the slower Pro call until you commit to a syllabus.</p>
+    </Callout>
+  </Section>
+
+  <Section number="04" kicker="Step 03 / Review" title="The AI’s lesson proposal.">
+    <div class="copy">
+      <p>Click <strong>Suggest lessons</strong> to send your syllabus to the scaffolder. The button shows a spinner while Gemini Pro thinks (typically 5–15 seconds). When done, you land on the Review step.</p>
+
+      <p>The Review pane shows the AI’s proposal as a vertical list of lesson cards in the order it suggests teaching them. Each card has:</p>
+      <ul>
+        <li><strong>A position number</strong> on the left, monospace.</li>
+        <li><strong>Title field</strong>, inline-editable. Click and type to change.</li>
+        <li><strong>Description field</strong>, also inline-editable, two-line textarea.</li>
+        <li><strong>Learning goals</strong>, a bulleted list (read-only here; you’ll edit them later in the lesson editor).</li>
+        <li><strong>Media chips</strong> (<code>Image</code>, <code>Video</code>, <code>3D</code>, <code>Code</code>, <code>App Lab</code>) showing what the AI thinks fits this specific lesson. Click any chip to toggle. Defaults from step 1 apply unless the AI saw a topic that demands a different mix.</li>
+        <li><strong>Trash icon</strong> on the right. Removes the lesson from the list. Other lessons keep their order.</li>
+      </ul>
+
+      <h4>Range assign — apply media to a span of lessons</h4>
+      <p>Above the list is a <strong>Range assign</strong> panel. Use it when you want consistent media across a chunk of the course — for example, lessons 1–4 should all be <code>Image</code>, lessons 5–10 should be <code>Code</code>, lessons 11–12 should be <code>App Lab</code>.</p>
+      <ol>
+        <li>Type the starting and ending lesson numbers (inclusive, 1-based) into the <em>from</em> and <em>to</em> fields.</li>
+        <li>Click the chips for the media types you want.</li>
+        <li>Click <strong>Apply</strong>. Every lesson in that range overwrites its media set with what you selected.</li>
+      </ol>
+      <p>You can run this multiple times to set different ranges. If a single lesson should be different from the rest of its range, run the range first, then click chips on that one card to override.</p>
+
+      <h4>Don’t like the proposal at all</h4>
+      <p>Click <strong>Back</strong> in the modal footer to return to step 2. Edit the syllabus or run another brainstorm and click <strong>Suggest lessons</strong> again. The previous proposal is discarded.</p>
+    </div>
+  </Section>
+
+  <Section number="05" kicker="Step 04 / Create" title="One click. Atomic.">
+    <div class="copy">
+      <p>When the lesson list looks right, click <strong>Create course</strong> at the bottom of the modal. The studio creates the course, every lesson, and an empty cohort attached 1:1 to that course — all in a single database transaction. Either everything is created or nothing is. You can’t end up with a course that has half its lessons.</p>
+      <p>The modal closes. You land on <code>/teacher/courses</code> with the new course selected on the right. Status is <code>draft</code>; the cohort is empty (<em>0 enrolled · 0 pending sign-up</em>).</p>
+      <p>Next, decide whether to refine the course further (edit lessons, change defaults) or jump straight to populating the roster.</p>
+    </div>
+  </Section>
+
+  <Section number="06" kicker="Worked example" title="A 12-lesson generative typography course.">
+    <div class="copy">
+      <h4>Step 1 / Config</h4>
+      <ul>
+        <li>Title: <code>Generative Typography for Designers</code></li>
+        <li>Description: <em>“Twelve weeks of code-driven type experiments. p5.js, then GLSL.”</em></li>
+        <li>Section: <code>Fall 2026 §A</code></li>
+        <li>Framework: <code>p5.js</code></li>
+        <li>Number of lessons: <code>12</code></li>
+        <li>Pass threshold: <code>75%</code></li>
+        <li>Max time: <code>60 min</code></li>
+        <li>Default media types: <code>Image</code> + <code>Code</code> (image for early ideation, code for production)</li>
+      </ul>
+
+      <h4>Step 2 / Syllabus</h4>
+      <p>Started in <strong>Brainstorm with AI</strong>. Three turns:</p>
+      <ol>
+        <li>Me: <em>“12-week course, undergrad design students, basic JavaScript. Goal: produce a generative type poster series for their portfolio.”</em></li>
+        <li>AI: asked about prerequisites, deliverables, and whether GLSL would be in scope.</li>
+        <li>Me: <em>“No prereqs beyond intro programming. Final deliverable is a 6-poster series. Add GLSL in the final third for shader-based type.”</em></li>
+      </ol>
+      <p>Clicked <strong>Use as syllabus ↑</strong>. The summarizer wrote ~12 lines into the textarea — title, audience, lesson-by-lesson outline with media tags. Reviewed it; it was good. Hit <strong>Suggest lessons</strong>.</p>
+
+      <h4>Step 3 / Review</h4>
+      <p>The AI proposed 12 lessons. Used <strong>Range assign</strong> to set lessons 1–3 as <code>Image</code>, 4–9 as <code>Code</code> (p5.js), 10–12 as <code>Code</code> (GLSL). Renamed lesson 4 from “Hello, type” to “Loop your alphabet.” Removed lesson 7 (felt redundant). Hit <strong>Create course</strong>.</p>
+
+      <h4>Done</h4>
+      <p>Total elapsed: ~9 minutes. Result: 11 lessons (one removed), framework <code>p5.js</code>, mixed media per the range assignments, status <code>draft</code>. Now ready to import the roster.</p>
+    </div>
+  </Section>
+
+  <Section number="07" kicker="Next" title="Customize lessons or add students.">
+    <div class="copy">
+      <p>Two places to go from here:</p>
+      <ul>
+        <li><a href="/courses/edit-course">03 / Edit a course or its lessons</a> — fine-tune individual lessons before students arrive.</li>
+        <li><a href="/cohorts/add-students">05 / Add students</a> — populate the cohort from a CSV or one email at a time.</li>
+      </ul>
+    </div>
+  </Section>
+</Layout>
