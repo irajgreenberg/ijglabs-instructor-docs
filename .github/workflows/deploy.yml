@@ -35,7 +35,7 @@ jobs:
     name: Deploy to cortex-studio
     needs: verify
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_CORTEX_DEPLOY == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
