@@ -40,36 +40,54 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Install cloudflared
         run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/
+
+      - name: Setup SSH
+        env:
+          CORTEX_SSH_KEY: ${{ secrets.CORTEX_SSH_KEY }}
+          CORTEX_HOST: ${{ secrets.CORTEX_HOST }}
+          CORTEX_USER: ${{ secrets.CORTEX_USER }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          test -n "$CORTEX_SSH_KEY" || { echo 'Missing CORTEX_SSH_KEY'; exit 1; }
           mkdir -p ~/.ssh
-          echo '${{ secrets.CORTEX_SSH_KEY }}' > ~/.ssh/cortex_key
+          printf '%s\n' "$CORTEX_SSH_KEY" > ~/.ssh/cortex_key
           chmod 600 ~/.ssh/cortex_key
-          cat >> ~/.ssh/config << EOF
-          Host deploy-target
-            HostName ${{ vars.CORTEX_HOST || secrets.CORTEX_HOST || 'cortex-studio' }}
-            User ${{ vars.CORTEX_USER || secrets.CORTEX_USER || 'ira' }}
-            IdentityFile ~/.ssh/cortex_key
-            StrictHostKeyChecking no
-          EOF
+          HOST="${CORTEX_HOST:-gogo.ijglabs.ai}"
+          USER="${CORTEX_USER:-ira}"
+          {
+            echo 'Host deploy-target'
+            echo "  HostName $HOST"
+            echo "  User $USER"
+            echo '  IdentityFile ~/.ssh/cortex_key'
+            echo '  StrictHostKeyChecking no'
+            if [ -n "$CF_ACCESS_CLIENT_ID" ] && [ -n "$CF_ACCESS_CLIENT_SECRET" ]; then
+              echo "  ProxyCommand cloudflared access ssh --hostname %h -H \"CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}.access\" -H \"CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}\""
+            fi
+          } >> ~/.ssh/config
 
       - name: Test SSH connection
-        run: ssh deploy-target "echo 'SSH connection successful'"
+        run: ssh deploy-target "hostname && node -v && pm2 -v"
 
-      - name: Prepare deploy directory
-        run: ssh deploy-target "mkdir -p ${{ env.DEPLOY_DIR }}"
-
-      - name: Sync source to server
+      - name: Sync built app to server
         run: |
-          rsync -az --delete             -e "ssh -o StrictHostKeyChecking=no"             --exclude='.git'             --exclude='node_modules'             --exclude='dist'             --exclude='.astro'             --exclude='.env*'             ./ deploy-target:${{ env.DEPLOY_DIR }}/
+          ssh deploy-target "mkdir -p ${{ env.DEPLOY_DIR }}"
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            ./dist ./package.json ./package-lock.json ./node_modules \
+            deploy-target:${{ env.DEPLOY_DIR }}/
 
       - name: Install dependencies and build on server
-        run: |
-          ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && npm ci && npm run build"
+        run: ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && npm ci && npm run build"
 
       - name: Reload PM2 application
         run: |
-          ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && pm2 reload ${{ env.PM2_NAME }} --update-env 2>/dev/null || PORT=${{ env.PORT }} pm2 start 'npm run preview -- --host 127.0.0.1 --port ${{ env.PORT }}' --name ${{ env.PM2_NAME }} --restart-delay=2000"
+          ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && (pm2 reload ${{ env.PM2_NAME }} --update-env 2>/dev/null || pm2 start npm --name ${{ env.PM2_NAME }} --restart-delay=2000 -- run preview)"
           ssh deploy-target "pm2 save"
 
       - name: Health check
