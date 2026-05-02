@@ -1,0 +1,20 @@
+---
+title: Media types
+description: Lock lessons to image, video, 3D, code, or app tools.
+---
+
+Media types define which student tools are allowed in a lesson.
+
+- `image`: AI image generation.
+- `video`: AI video.
+- `3d`: AI 3D mesh.
+- `code`: creative coding sketches.
+- `app`: App Lab guided prototypes.
+
+An empty media type list means unrestricted: the student can use any tool. When a lesson has media types, Studio enforces them server-side. For example, if `mediaTypes: ['code']`, a request to switch into image mode returns a 409 `lesson_media_locked`, and the UI hides disallowed mode tabs.
+
+For most lessons, pick one media type. Pick two only when the lesson truly needs both, such as designing a character with `image` and coding its motion with `code`.
+
+{/* <!-- screenshot: lesson-media-type-chips.png "Lesson media type chips for image, video, 3D, code, and app" --> */}
+
+> If something goes wrong: if students cannot see a tool tab, check the lesson’s media chips first.

@@ -1,17 +1,25 @@
 {
   "name": "ijglabs-instructor-docs",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "astro preview --host 127.0.0.1 --port 3219",
+    "astro": "astro",
+    "check": "astro check"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.4",
+    "@fontsource/geist-mono": "^5.2.7",
+    "@fontsource/geist-sans": "^5.2.5",
     "astro": "^6.1.9",
     "sharp": "^0.34.5"
-  }
+  },
+  "private": false,
+  "engines": {
+    "node": ">=20 <21"
+  },
+  "description": "Instructor documentation for IJG Studio."
 }

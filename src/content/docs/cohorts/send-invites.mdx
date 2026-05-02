@@ -1,0 +1,19 @@
+---
+title: Send invites
+description: Email pending students their sign-in path.
+---
+
+Invite emails go only to pending students: whitelisted cohort members who have not signed in yet.
+
+1. Open the course detail page and find the cohort header.
+2. Click **Send invites (N)**. `N` is the pending student count.
+3. Studio sends a friendly HTML email to each pending student. The link opens `/login?email=their-email`, so the sign-in form is pre-filled.
+4. Students click **Email me a sign-in link** to receive their Auth.js magic link.
+5. Read the status banner at the top of the panel after the send finishes.
+
+You can also send to one pending student with the per-row **Send** icon. Each recipient has a 60-second cooldown. If you click twice too quickly, Studio skips recently invited students and reports `X skipped (sent less than 60s ago)`. Pending rows show **Invited 12m ago** after contact; the per-row icon resends later.
+
+{/* <!-- screenshot: send-invites-button.png "Cohort header showing Send invites (N) button" --> */}
+{/* <!-- screenshot: pending-row-invited.png "Pending student row showing Invited 12m ago and per-row Send icon" --> */}
+
+> If something goes wrong: if the button is disabled, there are no pending students. Add or import students first.

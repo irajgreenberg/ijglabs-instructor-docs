@@ -1,0 +1,78 @@
+name: Deploy Instructor Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  DEPLOY_DIR: ~/apps/ijglabs-instructor-docs
+  PM2_NAME: instructor-docs
+  PORT: '3219'
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy to cortex-studio
+    needs: verify
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo '${{ secrets.CORTEX_SSH_KEY }}' > ~/.ssh/cortex_key
+          chmod 600 ~/.ssh/cortex_key
+          cat >> ~/.ssh/config << EOF
+          Host deploy-target
+            HostName ${{ vars.CORTEX_HOST || secrets.CORTEX_HOST || 'cortex-studio' }}
+            User ${{ vars.CORTEX_USER || secrets.CORTEX_USER || 'ira' }}
+            IdentityFile ~/.ssh/cortex_key
+            StrictHostKeyChecking no
+          EOF
+
+      - name: Test SSH connection
+        run: ssh deploy-target "echo 'SSH connection successful'"
+
+      - name: Prepare deploy directory
+        run: ssh deploy-target "mkdir -p ${{ env.DEPLOY_DIR }}"
+
+      - name: Sync source to server
+        run: |
+          rsync -az --delete             -e "ssh -o StrictHostKeyChecking=no"             --exclude='.git'             --exclude='node_modules'             --exclude='dist'             --exclude='.astro'             --exclude='.env*'             ./ deploy-target:${{ env.DEPLOY_DIR }}/
+
+      - name: Install dependencies and build on server
+        run: |
+          ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && npm ci && npm run build"
+
+      - name: Reload PM2 application
+        run: |
+          ssh deploy-target "cd ${{ env.DEPLOY_DIR }} && pm2 reload ${{ env.PM2_NAME }} --update-env 2>/dev/null || PORT=${{ env.PORT }} pm2 start 'npm run preview -- --host 127.0.0.1 --port ${{ env.PORT }}' --name ${{ env.PM2_NAME }} --restart-delay=2000"
+          ssh deploy-target "pm2 save"
+
+      - name: Health check
+        run: |
+          sleep 5
+          ssh deploy-target "curl -fsS http://localhost:${{ env.PORT }}/ | head -5"
