@@ -99,7 +99,7 @@ h3 { margin-bottom: 8px; font-size: clamp(1.15rem, .9rem + .9vw, 1.65rem); line-
 
 .lead, .copy, .source-note { grid-column: 4 / 13; }
 .lead { font-size: var(--lead); line-height: 1.14; letter-spacing: -.04em; font-weight: 520; }
-.copy { margin-top: 24px; max-width: 760px; }
+.copy { margin-top: 24px; }
 .copy.full-bleed { grid-column: 4 / 13; }
 .copy p, .copy ul, .copy ol { margin: 0 0 1em; color: var(--ink); }
 .copy ul, .copy ol { padding-left: 1.2em; }
